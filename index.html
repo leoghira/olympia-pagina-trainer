@@ -1,0 +1,234 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Olympia - Pagina del trainer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600&family=Work+Sans:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  /* ============================================================
+     PAGINA DEL TRAINER - Palestra Olympia
+     Non conserva nessun dato: niente salvataggi, niente server.
+     Il tasto "Invia" apre WhatsApp con il messaggio già scritto
+     verso il numero della palestra (impostato qui sotto nello script).
+     ============================================================ */
+  :root{--red:#E31E24;--ink:#141414;--soft:#5c5c5c;--paper:#F5F4F1;--line:#d6d3cc;--ok:#1f7a3a}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--paper);color:var(--ink);font-family:'Work Sans',Arial,sans-serif;font-size:16px;line-height:1.4}
+  header{background:var(--ink);color:#fff;padding:14px 16px;position:sticky;top:0;z-index:5}
+  header b{font-family:'Oswald',sans-serif;font-size:20px;letter-spacing:.06em}
+  header span{color:var(--red);font-family:'Oswald',sans-serif}
+  header small{display:block;color:#bbb;font-size:13px;margin-top:2px}
+  main{max-width:560px;margin:0 auto;padding:12px 16px 120px}
+  html,body{overflow-x:hidden}
+  fieldset{border:1px solid var(--line);border-radius:12px;background:#fff;margin:14px 0;padding:12px 14px;min-width:0}
+  input,select,textarea,.row>*,.ex>*{min-width:0}
+  .seg label{min-width:0!important}
+  legend{font-family:'Oswald',sans-serif;font-size:17px;padding:0 6px}
+  label{display:block;font-weight:600;font-size:14px;margin:10px 0 4px}
+  label small{font-weight:400;color:var(--soft)}
+  input,select,textarea{width:100%;font:inherit;padding:10px;border:1px solid var(--line);border-radius:8px;background:#fff}
+  textarea{min-height:60px;resize:vertical}
+  input:focus,select:focus,textarea:focus{outline:2px solid var(--red);border-color:var(--red)}
+  .row{display:flex;gap:8px}
+  .row>*{flex:1}
+  .seg{display:flex;gap:6px;flex-wrap:wrap}
+  .seg label{flex:1;min-width:90px;margin:0;font-weight:400;border:1px solid var(--line);border-radius:8px;padding:9px 8px;text-align:center;cursor:pointer}
+  .seg input{display:none}
+  .seg input:checked+span{font-weight:600;color:var(--red)}
+  .seg label:has(input:checked){border-color:var(--red);background:#fff1f1}
+  .hint{font-size:13px;color:var(--soft);margin:4px 0 0}
+  .warn{font-size:13px;color:var(--red);margin:4px 0 0;display:none}
+  .day{border-top:2px solid var(--ink);margin-top:14px;padding-top:8px}
+  .day h3{font-family:'Oswald',sans-serif;font-size:16px;margin:0 0 6px;display:flex;justify-content:space-between;align-items:center}
+  .ex{display:grid;grid-template-columns:minmax(0,1fr) 62px 56px 30px;gap:5px;margin:6px 0}
+  .ex input{padding:9px 7px}
+  .btn{font:inherit;font-weight:600;border:1px solid var(--ink);background:#fff;border-radius:8px;padding:9px 12px;cursor:pointer}
+  .btn.small{padding:4px 10px;font-size:14px}
+  .btn.x{padding:0;width:34px;color:var(--soft)}
+  .send{position:fixed;left:0;right:0;bottom:0;background:#fff;border-top:2px solid var(--ink);padding:10px 16px}
+  .send .in{max-width:560px;margin:0 auto;display:flex;gap:8px}
+  .send button{flex:1;font:inherit;font-family:'Oswald',sans-serif;font-size:19px;padding:12px;border-radius:10px;cursor:pointer}
+  #go{background:var(--red);color:#fff;border:0}
+  #copy{background:#fff;border:1px solid var(--ink);flex:0 0 110px;font-size:15px}
+  #preview{white-space:pre-wrap;font-family:ui-monospace,Consolas,monospace;font-size:13px;background:#fafafa;border:1px dashed var(--line);border-radius:8px;padding:10px;display:none}
+  .hidden{display:none}
+</style>
+</head>
+<body>
+<header><b>OLYMPIA</b> <span>· sala pesi</span><small>Pagina del trainer · non salva nessun dato</small></header>
+<main>
+
+<fieldset>
+  <legend>Chi e cosa</legend>
+  <label>Numero di iscrizione <small>(da Wellness in Cloud, mai il nome)</small></label>
+  <input id="n" inputmode="numeric" placeholder="es. 0412" autocomplete="off">
+  <p class="warn" id="nwarn">Scrivi solo il numero di iscrizione, senza nome.</p>
+  <div class="row">
+    <div><label>Trainer</label>
+      <select id="trainer"><option value="">scegli…</option><option>Riccardo</option><option>Cristian</option><option>Claudio</option><option>Ale</option><option>Fabio</option><option value="altro">altro…</option></select>
+      <input id="trainerAltro" class="hidden" placeholder="nome del trainer"></div>
+    <div><label>Data</label><input id="data" type="date"></div>
+  </div>
+  <label>Cosa invii</label>
+  <div class="seg" id="tipo">
+    <label><input type="radio" name="tipo" value="nuovo" checked><span>Nuovo cliente</span></label>
+    <label><input type="radio" name="tipo" value="scheda"><span>Scheda nuova</span></label>
+    <label><input type="radio" name="tipo" value="esito"><span>Esito contatto</span></label>
+  </div>
+  <p class="hint">Nuovo cliente = anamnesi + scheda. Scheda nuova = rinnovo o controllo. Esito = com'è andato un contatto.</p>
+</fieldset>
+
+<fieldset id="secAnamnesi">
+  <legend>Anamnesi</legend>
+  <label>1 · Obiettivo principale</label><input id="a1" placeholder="es. tonificare, perdere peso, forza…">
+  <label>2 · Sport e allenamento fatti in passato</label><input id="a2">
+  <label>3 · Da quanto tempo è fermo</label><input id="a3" placeholder="es. 2 anni, mai fatto">
+  <label>4 · Limitazioni per l'allenamento <small>(senza diagnosi)</small></label>
+  <textarea id="a4" placeholder="es. evitare carichi sopra la testa; no salti"></textarea>
+  <p class="hint">Scrivi cosa evitare, non la malattia o il referto.</p>
+  <div class="row">
+    <div><label>5 · Giorni a settimana</label><input id="a5" inputmode="numeric" placeholder="es. 3"></div>
+    <div><label>Durata seduta</label><input id="a5b" placeholder="es. 1 ora"></div>
+  </div>
+  <label>6 · Fascia oraria abituale</label>
+  <div class="seg"><label><input type="radio" name="a6" value="mattina"><span>Mattina</span></label><label><input type="radio" name="a6" value="pomeriggio"><span>Pomeriggio</span></label><label><input type="radio" name="a6" value="sera"><span>Sera</span></label></div>
+  <label>7 · Cosa non gli piace o lo ha fatto smettere</label><input id="a7">
+  <label>8 · Pesata con la bilancia</label>
+  <div class="seg"><label><input type="radio" name="a8" value="no" checked><span>No</span></label><label><input type="radio" name="a8" value="si"><span>Sì</span></label></div>
+  <input id="a8v" class="hidden" placeholder="valori principali (peso, massa grassa…)">
+  <label>Consensi firmati sul foglio «Il tuo percorso in sala pesi»</label>
+  <div class="seg"><label><input type="checkbox" id="cA"><span>A · dati allenamento</span></label><label><input type="checkbox" id="cB"><span>B · WhatsApp</span></label></div>
+  <p class="warn" id="cwarn" style="display:block">Senza consenso A non inviare limitazioni né pesata: invia solo date e scheda.</p>
+  <label>Personal</label>
+  <div class="seg"><label><input type="radio" name="pers" value="no" checked><span>No</span></label><label><input type="radio" name="pers" value="proposto"><span>Proposto</span></label><label><input type="radio" name="pers" value="chiesto dal cliente"><span>Chiesto</span></label></div>
+</fieldset>
+
+<fieldset id="secScheda">
+  <legend>Scheda</legend>
+  <p class="hint">Esercizio · serie×ripetizioni · carico di partenza. Gli esercizi si scelgono dall'elenco o si scrivono.</p>
+  <div id="days"></div>
+  <button class="btn" type="button" id="addDay">+ aggiungi giorno</button>
+  <label>Data di controllo <small>(se la lasci vuota: 3 mesi)</small></label>
+  <input id="controllo" type="date">
+</fieldset>
+
+<fieldset id="secEsito" class="hidden">
+  <legend>Esito contatto</legend>
+  <label>Quale contatto</label>
+  <div class="seg"><label><input type="radio" name="cont" value="primo contatto" checked><span>Primo</span></label><label><input type="radio" name="cont" value="1 mese"><span>1 mese</span></label><label><input type="radio" name="cont" value="controllo"><span>Controllo</span></label></div>
+  <label>Com'è andata</label>
+  <textarea id="esito" placeholder="es. appuntamento fissato giovedì 18; non risponde; vuole il personal"></textarea>
+</fieldset>
+
+<fieldset>
+  <legend>Note</legend>
+  <textarea id="note" placeholder="facoltative"></textarea>
+  <pre id="preview"></pre>
+  <button class="btn small" type="button" id="showPrev">Vedi il messaggio</button>
+</fieldset>
+
+<datalist id="esercizi"></datalist>
+</main>
+
+<div class="send"><div class="in">
+  <button id="copy" type="button">Copia</button>
+  <button id="go" type="button">Invia alla palestra</button>
+</div></div>
+
+<script>
+// ===== IMPOSTAZIONI (le cambia Aurora) =====
+// Numero WhatsApp della palestra, con prefisso internazionale, senza + e senza spazi.
+const NUMERO_PALESTRA = '393346761555';
+// Elenco degli esercizi di Olympia: si allunga copiando una riga.
+const ESERCIZI = ['Abdominal crunch','Abductor','Adductor','Affondi','Alzate laterali cavo','Bicipiti martello','Chest press','Dip easy power','Hip thrust','Hyperextension','Lat machine','Leg curl','Leg extension','Leg press 45°','Low row singola','Push down corda','RDL','Shoulder press'];
+// ==========================================
+
+const $=id=>document.getElementById(id);
+const dl=$('esercizi');ESERCIZI.forEach(e=>{const o=document.createElement('option');o.value=e;dl.appendChild(o)});
+$('data').valueAsDate=new Date();
+
+function addEx(box){
+  const r=document.createElement('div');r.className='ex';
+  r.innerHTML='<input list="esercizi" placeholder="esercizio"><input placeholder="3x10"><input placeholder="kg"><button type="button" class="btn x" title="togli">✕</button>';
+  r.querySelector('.x').onclick=()=>r.remove();
+  box.appendChild(r);
+}
+function addDay(){
+  const n=$('days').children.length+1;
+  const d=document.createElement('div');d.className='day';
+  d.innerHTML='<h3><span>Scheda '+n+'</span><button type="button" class="btn small">+ esercizio</button></h3><div class="list"></div>';
+  const list=d.querySelector('.list');
+  d.querySelector('button').onclick=()=>addEx(list);
+  for(let i=0;i<4;i++)addEx(list);
+  $('days').appendChild(d);
+}
+$('addDay').onclick=addDay;addDay();
+
+const radio=name=>{const c=document.querySelector('input[name="'+name+'"]:checked');return c?c.value:''};
+function refresh(){
+  const t=radio('tipo');
+  $('secAnamnesi').classList.toggle('hidden',t!=='nuovo');
+  $('secScheda').classList.toggle('hidden',t==='esito');
+  $('secEsito').classList.toggle('hidden',t!=='esito');
+  $('trainerAltro').classList.toggle('hidden',$('trainer').value!=='altro');
+  $('a8v').classList.toggle('hidden',radio('a8')!=='si');
+  $('cwarn').style.display=$('cA').checked?'none':'block';
+}
+document.addEventListener('change',refresh);refresh();
+
+$('n').addEventListener('input',()=>{$('nwarn').style.display=/[^0-9\s]/.test($('n').value)?'block':'none'});
+
+const it=v=>{if(!v)return'';const[y,m,d]=v.split('-');return d+'/'+m+'/'+y};
+function build(){
+  const t=radio('tipo'),L=[];
+  const tr=$('trainer').value==='altro'?$('trainerAltro').value.trim():$('trainer').value;
+  L.push('#SALAPESI v1');
+  L.push('Tipo: '+({nuovo:'nuovo cliente',scheda:'scheda nuova',esito:'esito contatto'})[t]);
+  L.push('N: '+$('n').value.trim());
+  L.push('Trainer: '+tr);
+  L.push('Data: '+it($('data').value));
+  if(t==='nuovo'){
+    const A=$('cA').checked;
+    L.push('Consensi: A '+(A?'si':'no')+', B '+($('cB').checked?'si':'no'));
+    L.push('Obiettivo: '+$('a1').value.trim());
+    L.push('Sport passati: '+$('a2').value.trim());
+    L.push('Fermo da: '+$('a3').value.trim());
+    L.push('Limitazioni: '+(A?$('a4').value.trim():'(consenso A non dato)'));
+    L.push('Frequenza: '+$('a5').value.trim()+' giorni, '+$('a5b').value.trim());
+    L.push('Fascia: '+radio('a6'));
+    L.push('Non gli piace: '+$('a7').value.trim());
+    L.push('Pesata: '+(A&&radio('a8')==='si'?'si - '+$('a8v').value.trim():(radio('a8')==='si'?'(consenso A non dato)':'no')));
+    L.push('Personal: '+radio('pers'));
+  }
+  if(t!=='esito'){
+    [...$('days').children].forEach((d,i)=>{
+      const rows=[...d.querySelectorAll('.ex')].map(r=>[...r.querySelectorAll('input')].map(x=>x.value.trim())).filter(r=>r[0]);
+      if(!rows.length)return;
+      L.push('Scheda '+(i+1)+':');
+      rows.forEach(r=>L.push('- '+r[0]+' | '+(r[1]||'?')+' | '+(r[2]||'?')));
+    });
+    L.push('Controllo: '+(it($('controllo').value)||'3 mesi'));
+  }else{
+    L.push('Contatto: '+radio('cont'));
+    L.push('Esito: '+$('esito').value.trim());
+  }
+  if($('note').value.trim())L.push('Note: '+$('note').value.trim());
+  L.push('#FINE');
+  return L.join('\n');
+}
+function check(){
+  if(!/^\s*\d+\s*$/.test($('n').value)){alert('Manca il numero di iscrizione (solo cifre, niente nome).');return false}
+  const tr=$('trainer').value==='altro'?$('trainerAltro').value.trim():$('trainer').value;
+  if(!tr){alert('Scegli il trainer.');return false}
+  return true;
+}
+$('showPrev').onclick=()=>{const p=$('preview');p.textContent=build();p.style.display='block'};
+$('go').onclick=()=>{if(!check())return;location.href='https://wa.me/'+NUMERO_PALESTRA+'?text='+encodeURIComponent(build())};
+$('copy').onclick=()=>{if(!check())return;navigator.clipboard.writeText(build()).then(()=>alert('Messaggio copiato: incollalo nella chat della palestra.'))};
+</script>
+</body>
+</html>
