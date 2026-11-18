@@ -56,6 +56,9 @@
   #copy{background:#fff;border:1px solid var(--ink);flex:0 0 110px;font-size:15px}
   #preview{white-space:pre-wrap;font-family:ui-monospace,Consolas,monospace;font-size:13px;background:#fafafa;border:1px dashed var(--line);border-radius:8px;padding:10px;display:none}
   .hidden{display:none}
+  .chips{display:flex;flex-wrap:wrap;gap:6px;margin:2px 0 8px}
+  .chips button{font:inherit;font-size:15px;font-weight:600;border:1px solid var(--line);background:#fff;border-radius:18px;padding:7px 12px;cursor:pointer}
+  .chips button:active,.chips button.on{border-color:var(--red);color:var(--red);background:#fff1f1}
 </style>
 </head>
 <body>
@@ -109,7 +112,7 @@
 
 <fieldset id="secScheda">
   <legend>Scheda</legend>
-  <p class="hint">Esercizio · serie×ripetizioni · carico di partenza. Gli esercizi si scelgono dall'elenco o si scrivono.</p>
+  <p class="hint">Esercizio · serie×ripetizioni · carico di partenza. Gli esercizi si scelgono dall'elenco; serie×ripetizioni con un tocco sui pulsanti (o a mano).</p>
   <div id="days"></div>
   <button class="btn" type="button" id="addDay">+ aggiungi giorno</button>
   <label>Data di controllo <small>(se la lasci vuota: 3 mesi)</small></label>
@@ -143,6 +146,8 @@
 // ===== IMPOSTAZIONI (le cambia Aurora) =====
 // Numero WhatsApp della palestra, con prefisso internazionale, senza + e senza spazi.
 const NUMERO_PALESTRA = '393286825290';
+// Pulsanti rapidi per serie x ripetizioni (si possono cambiare).
+const SERIE_RIP = ['3x8','3x10','3x12','3x15','4x8','4x10','4x12','3x8-10'];
 // Elenco degli esercizi di Olympia: si allunga copiando una riga.
 const ESERCIZI = ['Abdominal crunch','Abductor','Adductor','Affondi','Alzate laterali cavo','Bicipiti martello','Chest press','Dip easy power','Hip thrust','Hyperextension','Lat machine','Leg curl','Leg extension','Leg press 45°','Low row singola','Push down corda','RDL','Shoulder press'];
 // ==========================================
@@ -153,10 +158,21 @@ $('data').valueAsDate=new Date();
 
 function addEx(box){
   const r=document.createElement('div');r.className='ex';
-  r.innerHTML='<input list="esercizi" placeholder="esercizio"><input placeholder="3x10"><input placeholder="kg"><button type="button" class="btn x" title="togli">✕</button>';
-  r.querySelector('.x').onclick=()=>r.remove();
+  r.innerHTML='<input list="esercizi" placeholder="esercizio"><input class="sr" placeholder="3x10"><input inputmode="decimal" placeholder="kg"><button type="button" class="btn x" title="togli">✕</button>';
+  r.querySelector('.x').onclick=()=>{if(chips.parentNode&&chips.previousSibling===r)chips.remove();r.remove()};
+  r.querySelector('.sr').addEventListener('focus',e=>showChips(r,e.target));
   box.appendChild(r);
 }
+// Fila di pulsanti che compare sotto l'esercizio mentre si sceglie serie x ripetizioni
+const chips=document.createElement('div');chips.className='chips';
+let chipTarget=null;
+SERIE_RIP.forEach(v=>{const b=document.createElement('button');b.type='button';b.textContent=v.replace('x','×');
+  b.addEventListener('pointerdown',e=>e.preventDefault());
+  b.onclick=()=>{if(!chipTarget)return;chipTarget.value=v;const row=chipTarget.parentNode;chips.remove();row.querySelectorAll('input')[2].focus()};
+  chips.appendChild(b)});
+function showChips(row,input){chipTarget=input;row.after(chips);
+  [...chips.children].forEach(b=>b.classList.toggle('on',b.textContent.replace('×','x')===input.value))}
+document.addEventListener('focusin',e=>{if(chips.parentNode&&!e.target.classList.contains('sr')&&!chips.contains(e.target))chips.remove()});
 function addDay(){
   const n=$('days').children.length+1;
   const d=document.createElement('div');d.className='day';
